@@ -1,0 +1,256 @@
+<?php
+
+class MarkupAdaptive extends WireData implements Module, ConfigurableModule {
+
+    public static function getModuleInfo() {
+        return array(
+            'title' => 'Markup Adaptive',
+            'summary' => 'Synced Javascript CSS Mediaquery helper',
+            'author' => 'Martijn Geerts',
+            'version' => 1,
+            'singular' => true,
+        );
+    }
+
+
+
+    // Array with classnames and sizes used for JSON
+    private $json = null;
+    // Array with classnames
+    private $array = array();
+
+
+
+    /**
+     * Helper function to convert newlines to array.
+     *
+     * @return array
+     */
+
+    private function explode($string, $delimiter = "\r\n") {
+        return array_map('trim', explode($delimiter, $string));
+    }
+
+
+
+    /**
+     * Ready
+     *
+     */
+    public function ready() {
+        $array = array();
+        $lines = $this->explode(trim($this->sizes), "\r\n");
+        $end = count($lines) - 1;
+        // values in right order, & reassign keys
+        sort($lines, SORT_NUMERIC);
+        foreach ($lines as $key => $line) {
+            $properties = $this->explode($line, ' ');
+            $count = count($properties);
+            $size = array_pop($properties);
+            $obj = array();
+
+            // last
+            if ($key === $end && $count == 2) {
+                $obj['min'] = $properties[0];
+                $obj['max'] = null;
+            // first
+            } else if (!$key && $count == 2) {
+                $obj['min'] = null;
+                $obj['max'] = $properties[0];
+            // else
+            } else if ($key !== $end) {
+                $obj['min'] = $properties[0];
+                $obj['max'] = $properties[1];
+            // error
+            } else {
+                $error = sprintf($this->_('The properties of the line “%s” are not correct'), $line);
+                $this->error($error);
+            }
+
+            $this->array[] = $size;
+            $array[$size] = $obj;
+        }
+        $this->json = !$errors ? $array : array();
+    }
+
+
+
+    /**
+     *
+     *
+     */
+    protected function getSizesArray() {
+        if ($this->json === null) $this->ready();
+        return $this->json;
+    }
+
+
+
+    /**
+     * init, needed for backward compatibility
+     *
+     */
+
+    public function init() {}
+
+    public function __toString() {
+        $script = file_get_contents($this->config->paths->MarkupAdaptive . 'MarkupAdaptive.js');
+
+        $search = array(
+            '##DELAY##',
+            '##JSON##',
+            '##ARRAY##',
+            '##PREFIX##',
+            '##UNTIL##',
+            '##UPWARD##',
+            '##OLDIE##',
+            '##COOKIE##',
+            );
+
+        $replace = array(
+            $this->delay,
+            json_encode($this->getSizesArray()),
+            json_encode($this->array),
+            $this->adfix == 'prefix' ? 1 : 0,
+            "'" . $this->until . "'",
+            "'" . $this->upward . "'",
+            $this->oldie_enabled ? 1 : 0,
+            $this->cookie ? 1 : 0
+            );
+
+        $script = preg_replace('/(?:(?:\/\*(?:[^*]|(?:\*+[^*\/]))*\*+\/)|(?:(?<!\:|\\\)\/\/.*))/', '', $script);
+        $script = preg_replace('/\s+/', ' ', $script);
+        return trim(str_replace($search, $replace, $script));
+    }
+
+    /**
+     * Factory settings
+     *
+     */
+    private static $factorySettings = array(
+        'sizes' => "479px xsmall\r\n480px 767px small\r\n768px 959px medium\r\n960px 1199px large\r\n1200px xlarge",
+        'until' => 'upto-',
+        'upward' => 'from-',
+        'adfix' => 'prefix',
+        'delay' => 150,
+    );
+
+
+
+    /**
+     * Set defaults for getConfig()
+     *
+     */
+    public function __construct() {
+        foreach ($this->factorySettings as $key => $unused) {
+            $this->set($key, $this->factorySettings[$key]);
+        }
+    }
+
+
+
+    /**
+     * Save factory seetings to Modules Config
+     *
+     */
+    private function saveFactorySettings() {
+        $array = array();
+        foreach (self::$factorySettings as $key => $value) {
+            if (strlen($this->data[$key])) continue;
+            $array[$key] = $value;
+        }
+        if (count($array)) $this->modules->saveModuleConfigData($this->className(), $array);
+    }
+
+
+
+    /**
+     * Module configuration
+     *
+     */
+    public static function getModuleConfigInputfields(array $data) {
+        return wire('modules')->get('MarkupAdaptive')->getConfig();
+    }
+
+
+
+    /**
+     * Convenience method escaping the static visibility for getModuleConfigInputfields
+     *
+     */
+    private function getConfig() {
+
+        // Config values
+        $sizes = trim($this->sizes);
+        $upward = trim($this->upward);
+        $until = trim($this->until);
+        $delay = $this->delay;
+
+        // insures atleast default data in database (getModuleConfigInputfields)
+        $this->saveFactorySettings();
+
+        $inputfields = new InputfieldWrapper();
+        $field = wire('modules')->get('InputfieldTextarea');
+        $field->name = 'sizes';
+        $field->label = $this->_("Base classnames (media queries)");
+        $field->description = $this->_("Every line represents a media query.");
+        $field->value = $sizes ? $sizes : self::$factorySettings['sizes'];
+        $inputfields->add($field);
+
+        $field = wire('modules')->get('InputfieldText');
+        $field->name = 'until';
+        $field->label = $this->_("Up to and including (prefix or suffix)");
+        $field->description = $this->_("");
+        $field->value = $until ? $until : self::$factorySettings['until'];
+        $field->columnWidth = 38;
+        $inputfields->add($field);
+
+        $field = wire('modules')->get('InputfieldText');
+        $field->name = 'upward';
+        $field->label = $this->_("Upward from and including (prefix or suffix)");
+        $field->description = $this->_("");
+        $field->value = $upward ? $upward : self::$factorySettings['upward'];
+        $field->columnWidth = 38;
+        $inputfields->add($field);
+
+        $field =$this->modules->get('InputfieldRadios');
+		$field->attr('name', 'adfix');
+		$field->label = __('Use as prefix or suffix');
+		$field->addOption('prefix', __('Prefix'));
+		$field->addOption('suffix', __('Suffix'));
+		$field->attr('value', $this->adfix);
+        $field->columnWidth = 24;
+		$field->optionColumns = 1;
+		$inputfields->add($field);
+
+        $field = $this->modules->get('InputfieldInteger');
+        $field->label = $this->_('Execution delay after resize.');
+        $field->attr('name', 'delay');
+        $field->attr('type', 'number');
+        $field->attr('max', '999');
+        $field->attr('maxlength', 3);
+        $field->value = $delay ? $delay : self::$factorySettings['delay'];
+        $field->columnWidth = 50;
+        $inputfields->add($field);
+
+        $field = $this->modules->get('InputfieldCheckbox');
+        $field->attr('name', 'cookie');
+        $field->set('skipLabel', Inputfield::skipLabelFor);
+        $field->label = $this->_('Set classname in a cookie');
+        $field->attr('value', $this->cookie);
+        $field->attr('checked', $this->cookie);
+        $field->columnWidth = 50;
+        $inputfields->add($field);
+
+        $field = $this->modules->get('InputfieldCheckbox');
+        $field->attr('name', 'oldie_enabled');
+        $field->set('skipLabel', Inputfield::skipLabelFor);
+        $field->label = $this->_('Enable for Internet Explorer 7 & Internet Explorer 8.');
+        $field->attr('value', $this->oldie_enabled);
+        $field->attr('checked', $this->oldie_enabled);
+        $field->notes = $this->_('See the examples how to respond on the resized & mediaquerychange events. Untested on lower versions of IE.');
+        $inputfields->add($field);
+
+        return $inputfields;
+    }
+}
