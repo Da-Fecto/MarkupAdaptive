@@ -16,6 +16,60 @@ The module script works with injected media queries and a HTML element tested ag
     - This script should run **before document ready** so it should be in the HEAD.
 4. You're ready to go.
 
+```javascript
+
+/**
+ * Getting information with Javascript.
+ *
+ */
+
+// How to catch the end of a resize (with jQuery)
+$('html').on('resized', function(e) {
+    console.log('Browser window is resized');
+});
+
+// Respond on a media query change
+$('html').on('mediaquerychange', function(e) {
+
+	// Get the old class name before the “mediaquery” occured
+	var oldClass = MarkupAdaptive.getOldClass();
+	// Get the new class belonging to the current “mediaquery”
+	var newClass = MarkupAdaptive.getClass();
+
+	console.log('mediaquerychange, from: “' + oldClass + '” to: “' + newClass + '”');
+});
+
+// Get the current class
+var current = MarkupAdaptive.getClass()
+
+// Get the old class, the class before the current
+var old_class = MarkupAdaptive.getOldClass()
+
+// Mediaquery JSON object which originates from your Modules config
+var sizes_object = MarkupAdaptive.getJson()
+
+// Mediaquery JSON object which originates from your Modules config'
+var array_with_classnames =MarkupAdaptive.getArray();
+
+// Is the current browser IE8 (returns true/false)
+MarkupAdaptive.isIE() // (bool)
+
+// Is the current browser IE8
+MarkupAdaptive.isIE(8) // (bool)
+
+// Is the current browser less then or equal to IE9 (lt, lte, gt, gte)
+MarkupAdaptive.isIE(9, 'lte') // (bool)
+
+// get the cookie, when checked in the module configuration
+function getCookie(name) {
+    var match = document.cookie.match(RegExp('(?:^|;\\s*)' + name + '=([^;]*)'));
+    return match ? match[1] : null;
+}
+
+console.log('Classname cookie value: ' + getCookie('MarkupAdaptive'));
+
+```
+
 A working example is hosted on [lightning.pw](http://nobelium-knh.lightningpw.com/), don't forget to view the site with devtools to see the additional info that's available for you.
 
-Big thanks to [conclurer](https://www.conclurer.com/), this instant ProcessWire hosting is awesome.
+Big thanks to [conclurer](https://www.conclurer.com/)! This instant ProcessWire hosting is awesome.
