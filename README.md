@@ -30,12 +30,10 @@ $('html').on('resized', function(e) {
 
 // Respond on a media query change
 $('html').on('mediaquerychange', function(e) {
-
-	// Get the old class name before the “mediaquery” occurred
+	// Get the old class name before the “mediaquery” change has occurred
 	var oldClass = MarkupAdaptive.getOldClass();
 	// Get the new class belonging to the current “mediaquery”
 	var newClass = MarkupAdaptive.getClass();
-
 	console.log('mediaquerychange, from: “' + oldClass + '” to: “' + newClass + '”');
 });
 
