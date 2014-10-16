@@ -70,6 +70,6 @@ console.log('Classname cookie value: ' + getCookie('MarkupAdaptive'));
 
 ```
 
-A working example is hosted on [lightning.pw](http://nobelium-knh.lightningpw.com/). This page doesn't use any media queries in the stylesheet, just to show that it is possible not that it is recommended. Don't forget to open devtools to see the javascript events in action.
+A working example is hosted on [lightning.pw](http://nobelium-knh.lightningpw.com/). This page doesn't use any media queries in the stylesheet just to show that it is possible. It is not recommended however. Don't forget to open devtools to see the javascript events in action.
 
 Big thanks to [conclurer](https://www.conclurer.com/)! This instant ProcessWire hosting is awesome.
