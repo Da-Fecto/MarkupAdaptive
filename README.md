@@ -11,8 +11,11 @@ The module script works with injected media queries and a HTML element tested ag
 
 1. Install the module
 2. Optionaly set your prefered settings in the module configuration.
-3. Call the script like this: 
+3. Insert the script like this.
     - `<script><?php echo $modules->get('MarkupAdaptive'); ?></script>`
-4. You're ready to go
+    - This script should run **before document ready** so it should be in the HEAD.
+4. You're ready to go.
 
 A working example is hosted on [lightning.pw](http://nobelium-knh.lightningpw.com/), don't forget to view the site with devtools to see the additional info that's available for you.
+
+Big thanks to [conclurer](https://www.conclurer.com/), this instant ProcessWire hosting is awesome.
