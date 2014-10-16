@@ -9,8 +9,8 @@ The module script works with injected media queries and a HTML element tested ag
 
 ### How to use
 
-1. Install the module
-2. Optionaly set your prefered settings in the module configuration.
+1. Install the module.
+2. Optionally set your preferred settings in the module configuration.
 3. Insert the script like this.
     - `<script><?php echo $modules->get('MarkupAdaptive'); ?></script>`
     - This script should run **before document ready** so it should be in the HEAD.
@@ -31,7 +31,7 @@ $('html').on('resized', function(e) {
 // Respond on a media query change
 $('html').on('mediaquerychange', function(e) {
 
-	// Get the old class name before the “mediaquery” occured
+	// Get the old class name before the “mediaquery” occurred
 	var oldClass = MarkupAdaptive.getOldClass();
 	// Get the new class belonging to the current “mediaquery”
 	var newClass = MarkupAdaptive.getClass();
