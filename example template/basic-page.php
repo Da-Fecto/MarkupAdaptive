@@ -19,6 +19,9 @@
             html, body {
                 margin: 0;
                 padding: 0;
+                font-size: 100%;
+                font: inherit;
+                vertical-align: baseline;
             }
 
             body {
@@ -26,17 +29,27 @@
                 min-height: 100%;
                 font-size: 1em;
                 line-height: 1.75em;
+                padding-bottom: 1em
                 }
 
-            body:before {
+            body:before,
+            body:after {
                 content: '';
-                color: #fff;
-                font-size: 560px;
-                padding: 5px;
+                color: #000;
+                font-size: 30em;
                 display: inline-block;
                 position: fixed;
-                bottom: 175px;
-                left: -40px;
+                opacity: .25;
+                bottom: .25em;
+                left: -0.1em;
+                z-index: -2;
+                }
+
+            body:after {
+                color: #FFF;
+                left: -0.15em;
+                opacity: 1;
+                z-index: -1;
                 }
 
             h1 {
@@ -45,7 +58,7 @@
                 display: inline;
                 margin: 0;
                 padding: 0;
-                color: #FFF;
+                color: #fff;
                 }
 
             h2 {
@@ -61,33 +74,31 @@
 
             span {
                 font-size: .2em;
-                background: #FFF;
-                color: #000;
-            }
-
-            #top { text-align: center; }
-            .lead {
-                margin-top: 10%;
                 }
 
-            .lead .gutter {
-                background: #FFF;
-            }
+            #top {
+                text-align: center;
+                margin-bottom: 5%;
+                }
 
-            .lead p {
-                font-size: 1.2em;
-            }
+            .lead .gutter { background: #FFF; }
+            .lead .gutter { background: #FFF; }
+            .lead p { margin: 0 }
+            .lead .col-60 p { font-size: 1.1em; }
+            .col-40 .gutter {
+                background: #000;
+                color: #FFF;
+                }
 
             .column {
                 display: inline-block;
                 position: relative;
-                margin-bottom: 10px;
                 vertical-align: top;
                 }
 
             .gutter {
-                margin: 0 5px;
-                padding: 12px;
+                margin: 5px;
+                padding: 10px;
                 overflow: hidden;
                 position: relative;
                 background: rgba(255,255,255, .5);
@@ -96,7 +107,7 @@
             .max-width {
                 max-width: 1440px;
                 position: relative;
-                padding: 5px;
+                padding: 0 5px;
                 margin: 0 auto;
             }
 
@@ -104,16 +115,32 @@
              * Using the classes direct
              *
              */
+
+            /*.large body:before { font-size: 25em; }
+            .medium body:before { font-size: 15em; }
+            .small body:before { font-size: 13em; }
+            .xsmall body:before { font-size: 8em; }
+            .large body:after { font-size: 25em; }
+            .medium body:after { font-size: 15em; }
+            .small body:after { font-size: 13em; }
+            .xsmall body:after { font-size: 8em; }*/
+
+
             .xsmall body { background: #225B66 }
             .xsmall body:before { content: '.xsmall' }
+            .xsmall body:after { content: '.xsmall' }
             .small body { background: #19A5A5 }
             .small body:before { content: '.small' }
+            .small body:after { content: '.small' }
             .medium body { background: #65BF6E }
             .medium body:before { content: '.medium' }
+            .medium body:after { content: '.medium' }
             .large body { background: #ECCE4F }
             .large body:before { content: '.large' }
+            .large body:after { content: '.large' }
             .xlarge body { background: #FC6E59 }
             .xlarge body:before { content: '.xlarge' }
+            .xlarge body:after { content: '.xlarge' }
             /* pseudeo elements are not supported by IE7 */
 
             .xsmall h1 {
@@ -148,22 +175,41 @@
             .large .column { width: 25%; }
             .xlarge .column { width: 20%; }
 
+            .row .col-40 { width: 40%; vertical-align: bottom}
+            .row .col-60 { width: 60%; }
+            .upto-medium .row .col-40 { width: 100%; }
+            .upto-medium .row .col-60 { width: 100%; }
+
+            a {
+                text-decoration: none;
+            }
+            .xsmall a { color: #225B66; }
+            .small a { color: #19A5A5; }
+            .medium a { color: #65BF6E; }
+            .large a { color: #ECCE4F; }
+            .xlarge a { color: #FC6E59; }
+
             /* from large and higher */
             .from-large #top {
                 background: #000;
                 color: #fff;
             }
 
-           /* from large and higher */
-           .upto-medium #top {
+            /* from large and higher */
+            .upto-medium #top {
                background: #FFF;
                color: #000;
-           }
+            }
 
             /**
              * Make adjustments for IE7 or IE8 only
              *
              */
+
+            .oldie .column {
+                margin-bottom: 5px;
+            }
+
             .ie7 .column,
             .ie7 .fullwidth {
                 display: inline;
@@ -175,6 +221,9 @@
             .ie7.medium .column { width: 33.25%; }
             .ie7.large .column { width: 24.95%; }
             .ie7.xlarge .column { width: 19.95%; }
+
+            .ie7 .column.col-60 { width: 59.85%; }
+            .ie7 .column.col-40 { width: 39.85%; }
 
             .ie7 .bgcolor,
             .ie8 .bgcolor {
@@ -188,23 +237,36 @@
                 filter: alpha(opacity=50);
             }
 
+
         </style>
         <script><?php echo $modules->get('MarkupAdaptive'); ?></script>
     </head>
 <body>
 
     <div id='top'>
-        <p>Upto .medium this background is white • from .large and including .large it's black.</p>
+        <p>hosted on <a href='lightning.pw/'>lightning.pw</a> Instant ProcessWire Hosting from <a href='https://www.conclurer.com/'>conclurer.com</a></p>
     </div>
 
-    <div class='max-width'>
-        <div class='lead'>
-            <h1>MarkupAdaptive<span>.module</span></h1>
-            <div class='gutter'>
-                <p>This module aimed to be a helper for developing an adaptive site. It is not meant to be a total replacement for media queries but you can do if you wish to. The module script works with injected media queries and a HTML element tested against those. This javascript process starts real early in the load process and is extremely fast. It starts even before the body tag is parsed, that's way before the first element is painted. In Explorer 7 and 8 clientWidth is used to pinpoint the “classname of the viewport size”.</p>
-            </div>
-        </div>
-    </div>
+    <div class='max-width lead'>
+
+        <h1>MarkupAdaptive<span>.module</span></h1>
+
+        <div class='row'><!--
+        --><div class='col-60 column'>
+                <div class='gutter'>
+                <h2>What is MarkupAdaptive?</h2>
+                <p>This module aims to be a helper for developing an adaptive site. MarkupAdaptive is a module that injects classnames representing 'media queries'. Fire events after the browser is resized and fires an event when a media query is changed. Optionally it can write a cookie with the ‘media query’ classname of the current viewport size. The main purpose of this module is all about syncing media queries with javascript. Say I want to have a slider on the iPad but don't want that slider on the phone I could now destroy the slider exactly on the right time.</p>
+                </div>
+            </div><!--
+            --><div class='col-40 column'>
+                <div class='gutter'>
+                <h2>How it works?</h2>
+
+                <p>The module script works with injected media queries and a HTML element tested against those. This javascript process starts real early in the load process and is extremely fast. It starts even before the body tag is parsed. In Explorer 7 and 8 clientWidth is used to pinpoint the “classname of the viewport size”.</p>
+                </div>
+            </div><!--
+        --></div><!--
+    --></div>
 
     <div class='max-width'>
         <div class='row'><!--
@@ -249,15 +311,15 @@
                 <div class='bgcolor'></div>
                 <div class='gutter'>
                     <h2>Get Information</h2>
-                    <p>Get information from the javascript MarkupAdaptive function<p>
+                    <p>Get information from the javascript MarkupAdaptive function. Type MarkupAdaptive. followed by the function name.<p>
                     <ul>
-                        <li>MarkupAdaptive.getClass()</li>
-                        <li>MarkupAdaptive.getOldClass()</li>
-                        <li>MarkupAdaptive.getJson()</li>
-                        <li>MarkupAdaptive.getArray()</li>
-                        <li>MarkupAdaptive.isIE()</li>
-                        <li>MarkupAdaptive.isIE(8)</li>
-                        <li>MarkupAdaptive.isIE(9, 'lte')</li>
+                        <li>.getClass()</li>
+                        <li>.getOldClass()</li>
+                        <li>.getJson()</li>
+                        <li>.getArray()</li>
+                        <li>.isIE()</li>
+                        <li>.isIE(8)</li>
+                        <li>.isIE(9, 'lte')</li>
                     </ul>
                     <p>Other javascript functions are not accessible, settings can be done with the Module configuration settings.</p>
                 </div>
