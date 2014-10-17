@@ -7,7 +7,7 @@ class MarkupAdaptive extends WireData implements Module, ConfigurableModule {
             'title' => 'Markup Adaptive',
             'summary' => 'Synced Javascript CSS Mediaquery helper',
             'author' => 'Martijn Geerts',
-            'version' => 2,
+            'version' => 3,
             'singular' => true,
         );
     }
@@ -16,8 +16,9 @@ class MarkupAdaptive extends WireData implements Module, ConfigurableModule {
 
     // Array with classnames and sizes used for JSON
     private $json = null;
+
     // Array with classnames
-    private $array = array();
+    private $array = null;
 
 
 
@@ -26,7 +27,6 @@ class MarkupAdaptive extends WireData implements Module, ConfigurableModule {
      *
      * @return array
      */
-
     private function explode($string, $delimiter = "\r\n") {
         return array_map('trim', explode($delimiter, $string));
     }
@@ -38,8 +38,9 @@ class MarkupAdaptive extends WireData implements Module, ConfigurableModule {
      *
      */
     public function ready() {
+        $json = array();
         $array = array();
-        $lines = $this->explode(trim($this->sizes), "\r\n");
+        $lines = array_filter($this->explode(trim($this->sizes), "\r\n"));
         $end = count($lines) - 1;
         // values in right order, & reassign keys
         sort($lines, SORT_NUMERIC);
@@ -67,10 +68,11 @@ class MarkupAdaptive extends WireData implements Module, ConfigurableModule {
                 $this->error($error);
             }
 
-            $this->array[] = $size;
-            $array[$size] = $obj;
+            $array[] = $size;
+            $json[$size] = $obj;
         }
-        $this->json = !$errors ? $array : array();
+        $this->array = $array;
+        $this->json = !$errors ? $json : array();
     }
 
 
@@ -79,7 +81,7 @@ class MarkupAdaptive extends WireData implements Module, ConfigurableModule {
      *
      *
      */
-    protected function getSizesArray() {
+    protected function build() {
         if ($this->json === null) $this->ready();
         return $this->json;
     }
@@ -90,38 +92,52 @@ class MarkupAdaptive extends WireData implements Module, ConfigurableModule {
      * init, needed for backward compatibility
      *
      */
-
     public function init() {}
 
-    public function __toString() {
-        $script = file_get_contents($this->config->paths->MarkupAdaptive . 'MarkupAdaptive.js');
 
+
+    /**
+     *
+     *
+     */
+    public function __toString() {
+
+        $json = count($this->json) ? $json : $this->build();
+
+        if (!count($this->array)) {
+            $message = $this->_("Please open the MarkupAdaptive module configuration. Or change the default settings and submit.");
+            return "alert('$message')";
+        }
+
+        $script = file_get_contents($this->config->paths->MarkupAdaptive . 'MarkupAdaptive.js');
         $search = array(
-            '##DELAY##',
-            '##JSON##',
-            '##ARRAY##',
-            '##PREFIX##',
-            '##UNTIL##',
-            '##UPWARD##',
-            '##OLDIE##',
-            '##COOKIE##',
+            "'**json**'",
+            "'**array**'",
+            "'**delay**'",
+            "'**prefix**'",
+            "'**cookie**'",
+            "'**oldie**'",
+            "**until**",
+            "**upward**",
             );
 
         $replace = array(
-            $this->delay,
-            json_encode($this->getSizesArray()),
+            json_encode($this->json),
             json_encode($this->array),
+            $this->delay,
             $this->adfix == 'prefix' ? 1 : 0,
-            "'" . $this->until . "'",
-            "'" . $this->upward . "'",
+            $this->cookie ? 1 : 0,
             $this->oldie_enabled ? 1 : 0,
-            $this->cookie ? 1 : 0
+            $this->until,
+            $this->upward,
             );
 
         $script = preg_replace('/(?:(?:\/\*(?:[^*]|(?:\*+[^*\/]))*\*+\/)|(?:(?<!\:|\\\)\/\/.*))/', '', $script);
         $script = preg_replace('/\s+/', ' ', $script);
         return trim(str_replace($search, $replace, $script));
     }
+
+
 
     /**
      * Factory settings
@@ -134,18 +150,6 @@ class MarkupAdaptive extends WireData implements Module, ConfigurableModule {
         'adfix' => 'prefix',
         'delay' => 150,
     );
-
-
-
-    /**
-     * Set defaults for getConfig()
-     *
-     */
-    public function __construct() {
-        foreach ($this->factorySettings as $key => $unused) {
-            $this->set($key, $this->factorySettings[$key]);
-        }
-    }
 
 
 
@@ -218,7 +222,8 @@ class MarkupAdaptive extends WireData implements Module, ConfigurableModule {
         $field->label = __('Use as prefix or suffix');
         $field->addOption('prefix', __('Prefix'));
         $field->addOption('suffix', __('Suffix'));
-        $field->attr('value', $this->adfix);
+        $field->value = $this->adfix ? $this->adfix : self::$factorySettings['adfix'];
+
         $field->columnWidth = 24;
         $field->optionColumns = 1;
         $inputfields->add($field);
@@ -248,7 +253,7 @@ class MarkupAdaptive extends WireData implements Module, ConfigurableModule {
         $field->label = $this->_('Enable for Internet Explorer 7 & Internet Explorer 8.');
         $field->attr('value', $this->oldie_enabled);
         $field->attr('checked', $this->oldie_enabled);
-        $field->notes = $this->_('See the examples how to respond on the resized & mediaquerychange events. Untested on lower versions of IE.');
+        $field->notes = $this->_('For old Internet Explorer support media queries should be specified in pixels.');
         $inputfields->add($field);
 
         return $inputfields;
