@@ -1,4 +1,52 @@
-var MarkupAdaptive = (function() {
+/*! matchMedia() polyfill - Test a CSS media type/query in JS. Authors & copyright (c) 2012: Scott Jehl, Paul Irish, Nicholas Zakas, David Knight. Dual MIT/BSD license */
+window.matchMedia || (window.matchMedia = function () {
+    "use strict";
+
+    // For browsers that support matchMedium api such as IE 9 and webkit
+    var styleMedia = (window.styleMedia || window.media);
+
+    // For those that don't support matchMedium
+    if (!styleMedia) {
+        var style = document.createElement('style'),
+            script = document.getElementsByTagName('script')[0],
+            info = null;
+
+        style.type = 'text/css';
+        style.id = 'matchmediajs-test';
+
+        script.parentNode.insertBefore(style, script);
+
+        // 'style.currentStyle' is used by IE <= 8 and 'window.getComputedStyle' for all other browsers
+        info = ('getComputedStyle' in window) && window.getComputedStyle(style, null) || style.currentStyle;
+
+        styleMedia = {
+            matchMedium: function (media) {
+                var text = '@media ' + media + '{ #matchmediajs-test { width: 1px; } }';
+
+                // 'style.styleSheet' is used by IE <= 8 and 'style.textContent' for all other browsers
+                if (style.styleSheet) {
+                    style.styleSheet.cssText = text;
+                } else {
+                    style.textContent = text;
+                }
+
+                // Test if media query is true or false
+                return info.width === '1px';
+            }
+        };
+    }
+
+    return function (media) {
+        return {
+            matches: styleMedia.matchMedium(media || 'all'),
+            media: media || 'all'
+        };
+    };
+}());
+
+
+
+var MarkupAdaptive = (function () {
 
     'use strict';
 
@@ -20,16 +68,12 @@ var MarkupAdaptive = (function() {
         isExpl,
         version = '',
         dom = document.documentElement,
-        head = document.getElementsByTagName('head')[0],
-        script = document.getElementsByTagName('script')[0],
-        style = document.createElement('style'),
-        media = document.createElement('b'),
         classes = dom.className;
 
     // credits: scottjehl :https://gist.github.com/scottjehl/357727
     function isIE(version, comparison) {
-        var e = 'IE', i = document.createElement('I');
-
+        var e = 'IE',
+            i = document.createElement('I');
         if (version) {
             e += ' ' + version;
             if (comparison) {
@@ -44,10 +88,18 @@ var MarkupAdaptive = (function() {
     }
 
     function setCookie() {
-        if (!write_cookie) { return false; }
+        if (!write_cookie) {
+            return false;
+        }
         document.cookie = 'MarkupAdaptive=' + mqclass + '; expires=Tue, 19 Jan 2038 03:14:07 GMT; path=/';
     }
 
+    /**
+     * Fire events for modern browsers
+     * Fires a resized event always, and mediaquerychange only when theres a
+     * change in breakpoints
+     *
+     */
     function eventModern() {
         if (!resized) {
             setCookie();
@@ -65,47 +117,45 @@ var MarkupAdaptive = (function() {
         dom.dispatchEvent(r);
     }
 
+    /**
+     * Set click to emulate the events for IE7 & IE 8.
+     *
+     */
     function eventOldie() {
         if (!resized) {
             setCookie();
             return;
         }
         try {
-
-            var body = dom.getElementsByTagName('body')[0],
-                mqc = document.getElementById('mediaquerychange'),
-                rsz = document.getElementById('resized');
             if (oldclass !== mqclass) {
-                mqc.click();
+                document.getElementById('mediaquerychange').click();
                 oldclass = mqclass;
-                setCookie()
+                setCookie();
             }
-
-            rsz.click();
-        } catch(e) { }
+            document.getElementById('resized').click();
+        } catch (e) {}
     }
 
-    function upAndDown(mqclass) {
-
-        /**
-         * Small to big
-         *
-         */
-
-        for (var k in json) {
-            if (json.hasOwnProperty(k)) {
-                mqclasses += prefix ? upward + k : k + upward;
-                mqclasses += ' ';
-                if (k === mqclass) {
-                    break;
-                }
+    /**
+     * Upward and until classes
+     *
+     */
+    function upAndDown() {
+        mqclasses = '';
+        for (var i = 0; i < array.length; i++) {
+            mqclasses += prefix ? upward + array[i] : array[i] + upward;
+            mqclasses += ' ';
+            if (array[i] === mqclass) {
+                break;
             }
         }
         array.reverse();
         for (var i = 0; i < array.length; i++) {
             mqclasses += prefix ? until + array[i] : array[i] + until;
             mqclasses += ' ';
-            if (array[i] === mqclass) { break; }
+            if (array[i] === mqclass) {
+                break;
+            }
         }
         array.reverse();
     }
@@ -116,22 +166,11 @@ var MarkupAdaptive = (function() {
      *
      */
     function insertClasses() {
-        if (browser === 'modern') {
-            dom.appendChild(media);
-            mqclass = window.getComputedStyle(media, ':after').getPropertyValue('content').replace(/"/g, '');
+        if (typeof oldclass == 'undefined') {
+            oldclass = mqclass;
         }
-
-        if (typeof oldclass == 'undefined') { oldclass = mqclass; }
-        mqclasses = '';
-        upAndDown(mqclass);
+        upAndDown();
         dom.className = classes + ' ' + mqclasses + browser + ' ' + version + mqclass;
-        if (browser === 'modern') {
-            eventModern();
-            dom.removeChild(media);
-            head.removeChild(style);
-        } else {
-            eventOldie();
-        }
     }
 
     /**
@@ -140,30 +179,32 @@ var MarkupAdaptive = (function() {
      *
      */
     function modern() {
-        style.type = 'text/css';
-        style.id = 'mqstyles';
-        media.id = 'mq';
-        var c;
-        for (c in json) {
-            if (json.hasOwnProperty(c)) {
-                var min = json[c].min,
-                    max = json[c].max,
-                    after = '#mq:after{content:\'' + c + '\'; display: none;}';
+        var cls;
+        for (cls in json) {
+            if (json.hasOwnProperty(cls)) {
+                var min = json[cls].min,
+                    max = json[cls].max;
                 if (!min && max) {
-                    str = ' ' + browser + ' ' + c + '|';
-                    style.innerHTML = '@media all and (max-width:' + max + '){' + after + '}';
+                    str = ' ' + browser + ' ' + cls + '|';
+                    if (matchMedia('(max-width:' + max + ')').matches) {
+                        mqclass = cls;
+                    }
                 } else if (min && max) {
-                    str += ' ' + browser + ' ' + c + '|';
-                    style.innerHTML += '@media all and (min-width:' + min + ') and (max-width: ' + max + '){' + after + '}';
+                    str += ' ' + browser + ' ' + cls + '|';
+                    if (matchMedia('(min-width:' + min + ') and (max-width: ' + max + ')').matches) {
+                        mqclass = cls;
+                    }
                 } else {
-                    str += ' ' + browser + ' ' + c;
-                    style.innerHTML += '@media all and (min-width:' + min + '){' + after + '}';
+                    str += ' ' + browser + ' ' + cls;
+                    if (matchMedia('(min-width:' + min + ')').matches) {
+                        mqclass = cls;
+                    }
                 }
             }
         }
-        head.insertBefore(style, script);
         classes = classes.replace(new RegExp('(' + str + ')', 'g'), '');
         insertClasses();
+        eventModern();
     }
 
     /**
@@ -171,7 +212,8 @@ var MarkupAdaptive = (function() {
      *
      */
     function oldie() {
-        var viewport = dom.clientWidth, k;
+        var viewport = dom.clientWidth,
+            k;
         for (k in json) {
             if (json.hasOwnProperty(k)) {
                 var min = parseInt(json[k].min, 10),
@@ -190,6 +232,7 @@ var MarkupAdaptive = (function() {
         }
         classes = classes.replace(new RegExp('(' + str + ')', 'g'), '');
         insertClasses();
+        eventOldie();
     }
 
     /**
@@ -198,10 +241,7 @@ var MarkupAdaptive = (function() {
      *
      */
     function fire() {
-        if (typeof window.matchMedia !== 'undefined' || typeof window.msMatchMedia !== 'undefined') {
-            browser = 'modern';
-            modern();
-        } else if (isIE(9)) {
+        if (matchMedia('(min-width:1px)').matches) {
             browser = 'modern';
             modern();
         } else if (isIE(8)) {
@@ -230,14 +270,17 @@ var MarkupAdaptive = (function() {
          * make the onresize event available.
          *
          */
-        init: (function() {
+        init: (function () {
 
-            if (oldie_enabled == 0 && isIE()) { return false; }
+            if (oldie_enabled == 0 && isIE()) {
+                return false;
+            }
 
             fire();
-            window.onresize = function() {
+
+            window.onresize = function () {
                 clearTimeout(timer);
-                timer = setTimeout(function() {
+                timer = setTimeout(function () {
                     resized = true;
                     if (browser === 'modern') {
                         modern();
@@ -252,19 +295,19 @@ var MarkupAdaptive = (function() {
          * Available getters for the base function MarkupAdaptive
          *
          */
-        getClass: function() {
+        getClass: function () {
             return mqclass;
         },
-        getOldClass: function() {
+        getOldClass: function () {
             return oldclass;
         },
-        getJson: function() {
+        getJson: function () {
             return json;
         },
-        getArray: function() {
+        getArray: function () {
             return array;
         },
-        isIE: function(version, comparison) {
+        isIE: function (version, comparison) {
             return isIE(version, comparison);
         }
     };
