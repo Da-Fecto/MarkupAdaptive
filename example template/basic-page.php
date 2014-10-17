@@ -20,16 +20,14 @@
                 margin: 0;
                 padding: 0;
                 font-size: 100%;
-                font: inherit;
                 vertical-align: baseline;
-            }
+                }
 
             body {
                 font-family: sans-serif;
                 min-height: 100%;
                 font-size: 1em;
                 line-height: 1.75em;
-                padding-bottom: 1em
                 }
 
             body:before,
@@ -72,9 +70,7 @@
                 margin-bottom: 24px;
                 }
 
-            span {
-                font-size: .2em;
-                }
+            span { font-size: .2em; }
 
             #top {
                 text-align: center;
@@ -109,22 +105,29 @@
                 position: relative;
                 padding: 0 5px;
                 margin: 0 auto;
-            }
+                }
 
             /**
              * Using the classes direct
              *
              */
 
-            /*.large body:before { font-size: 25em; }
-            .medium body:before { font-size: 15em; }
-            .small body:before { font-size: 13em; }
-            .xsmall body:before { font-size: 8em; }
-            .large body:after { font-size: 25em; }
-            .medium body:after { font-size: 15em; }
-            .small body:after { font-size: 13em; }
-            .xsmall body:after { font-size: 8em; }*/
+            .column a.button {
+                padding: 0 10px;
+                line-height: 32px;
+                display: inline-block;
+                float: right;
+                background: #000;
+                color: #FFF;
+                border: 1px solid #000;
+                margin-left: 10px;
+                margin-top: 10px;
+                }
 
+            .column a.button:hover {
+                background: #FFF;
+                color: #000;
+                }
 
             .xsmall body { background: #225B66 }
             .xsmall body:before { content: '.xsmall' }
@@ -146,23 +149,27 @@
             .xsmall h1 {
                 font-size: 2em;
                 background: #225B66
-            }
+                }
+
             .small h1 {
                 font-size: 3.5em;
                 background: #19A5A5
-            }
+                }
+
             .medium h1 {
                 font-size: 4.5em;
                 background: #65BF6E
-            }
+                }
+
             .large h1 {
                 font-size: 5em;
                 background: #ECCE4F
-            }
+                }
+
             .xlarge h1 {
                 font-size: 6em;
                 background: #FC6E59
-            }
+                }
 
             /**
              * Classes reached upto and including
@@ -180,9 +187,7 @@
             .upto-medium .row .col-40 { width: 100%; }
             .upto-medium .row .col-60 { width: 100%; }
 
-            a {
-                text-decoration: none;
-            }
+            a { text-decoration: none; }
             .xsmall a { color: #225B66; }
             .small a { color: #19A5A5; }
             .medium a { color: #65BF6E; }
@@ -193,22 +198,21 @@
             .from-large #top {
                 background: #000;
                 color: #fff;
-            }
+                }
 
             /* from large and higher */
             .upto-medium #top {
                background: #FFF;
                color: #000;
-            }
+                }
 
             /**
              * Make adjustments for IE7 or IE8 only
              *
              */
 
-            .oldie .column {
-                margin-bottom: 5px;
-            }
+            /* IE7 & IE8 */
+            .oldie .column { margin-bottom: 5px; }
 
             .ie7 .column,
             .ie7 .fullwidth {
@@ -235,11 +239,11 @@
                 top: 0;
                 -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=50)";
                 filter: alpha(opacity=50);
-            }
-
+                }
 
         </style>
         <script><?php echo $modules->get('MarkupAdaptive'); ?></script>
+
     </head>
 <body>
 
@@ -247,26 +251,29 @@
         <p>hosted on <a href='lightning.pw/'>lightning.pw</a> Instant ProcessWire Hosting from <a href='https://www.conclurer.com/'>conclurer.com</a></p>
     </div>
 
+    <!-- comments are used to remove white-space -->
+
     <div class='max-width lead'>
-
         <h1>MarkupAdaptive<span>.module</span></h1>
-
         <div class='row'><!--
         --><div class='col-60 column'>
                 <div class='gutter'>
-                <h2>What is MarkupAdaptive?</h2>
-                <p>This module aims to be a helper for developing an adaptive site. MarkupAdaptive is a module that injects classnames representing 'media queries'. Fire events after the browser is resized and fires an event when a media query is changed. Optionally it can write a cookie with the ‘media query’ classname of the current viewport size. The main purpose of this module is all about syncing media queries with javascript. Say I want to have a slider on the iPad but don't want that slider on the phone I could now destroy the slider exactly on the right time.</p>
+                    <h2>What is MarkupAdaptive?</h2>
+                    <p>This module aims to be a helper for developing an adaptive site. MarkupAdaptive is a module that injects classnames representing 'media queries'. Fire events after the browser is resized and fires an event when a media query is changed. Optionally it can write a cookie with the ‘media query’ classname of the current viewport size. The main purpose of this module is all about syncing media queries with javascript. Say I want to have a slider on the iPad but don't want that slider on the phone I could now destroy the slider exactly on the right time.</p>
+                    <p>
+                        <a href='https://github.com/Da-Fecto/MarkupAdaptive/' class='button'>view on GitHub</a>
+                        <a href='https://github.com/Da-Fecto/MarkupAdaptive/archive/master.zip' class='button'>Download</a>
+                    </p>
                 </div>
             </div><!--
-            --><div class='col-40 column'>
+         --><div class='col-40 column'>
                 <div class='gutter'>
-                <h2>How it works?</h2>
-
-                <p>The module script works with injected media queries and a HTML element tested against those. This javascript process starts real early in the load process and is extremely fast. It starts even before the body tag is parsed. In Explorer 7 and 8 clientWidth is used to pinpoint the “classname of the viewport size”.</p>
+                    <h2>How it works?</h2>
+                    <p>The module script works with injected media queries and a HTML element tested against those. This javascript process starts real early in the load process and is extremely fast. It starts even before the body tag is parsed. In Explorer 7 and 8 clientWidth is used to pinpoint the “classname of the viewport size”.</p>
                 </div>
             </div><!--
-        --></div><!--
-    --></div>
+     --></div>
+    </div>
 
     <div class='max-width'>
         <div class='row'><!--
