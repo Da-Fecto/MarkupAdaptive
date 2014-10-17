@@ -2,25 +2,23 @@ var MarkupAdaptive = (function() {
 
     'use strict';
 
-    var json = ##JSON##,
-        start,
-        finished,
-        array = ##ARRAY##,
+    var json = '**json**',
+        array = '**array**',
+        delay = '**delay**',
+        prefix = '**prefix**',
+        until = '**until**',
+        upward = '**upward**',
+        oldie_enabled = '**oldie**',
+        write_cookie = '**cookie**',
         browser,
         timer,
-        delay = ##DELAY##,
-        prefix = ##PREFIX##,
-        until = ##UNTIL##,
-        upward = ##UPWARD##,
-        oldie_enabled = ##OLDIE##,
-        write_cookie = ##COOKIE##,
         resized,
         str,
         mqclass,
         oldclass,
         mqclasses = '',
         isExpl,
-        versionExpl = '',
+        version = '',
         dom = document.documentElement,
         head = document.getElementsByTagName('head')[0],
         script = document.getElementsByTagName('script')[0],
@@ -126,7 +124,7 @@ var MarkupAdaptive = (function() {
         if (typeof oldclass == 'undefined') { oldclass = mqclass; }
         mqclasses = '';
         upAndDown(mqclass);
-        dom.className = classes + ' ' + mqclasses + browser + ' ' + versionExpl + mqclass;
+        dom.className = classes + ' ' + mqclasses + browser + ' ' + version + mqclass;
         if (browser === 'modern') {
             eventModern();
             dom.removeChild(media);
@@ -145,7 +143,6 @@ var MarkupAdaptive = (function() {
         style.type = 'text/css';
         style.id = 'mqstyles';
         media.id = 'mq';
-
         var c;
         for (c in json) {
             if (json.hasOwnProperty(c)) {
@@ -209,11 +206,11 @@ var MarkupAdaptive = (function() {
             modern();
         } else if (isIE(8)) {
             browser = 'oldie';
-            versionExpl = 'ie8 ';
+            version = 'ie8 ';
             oldie();
         } else if (isIE(7)) {
             browser = 'oldie';
-            versionExpl = 'ie7 ';
+            version = 'ie7 ';
             oldie();
         } else if (isIE(6, 'lte')) {
             return false;
